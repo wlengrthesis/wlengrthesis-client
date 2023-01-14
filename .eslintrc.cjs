@@ -1,4 +1,4 @@
-/** @type { import("@types/eslint").Linter.BaseConfig } */
+/** @type { import("eslint").Linter.BaseConfig } */
 module.exports = {
   env: {
     browser: true,
