@@ -1,0 +1,18 @@
+type HttpMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+export const makeRequest = async <T>(
+  endpoint: string,
+  method: HttpMethod = 'GET',
+  bodyRequest: Record<string, any> = {},
+  headers?: Record<string, string>
+): Promise<T> => {
+  const options = {
+    method,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyRequest),
+  }
+  console.log(import.meta.env.VITE_BASE_URL, options)
+  const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, options)
+  if (!response.ok) throw new Error(`${response.status} (${response.statusText})`)
+  return (await response.json()) as T
+}

@@ -5,12 +5,18 @@ const StyledPaper = styled(Paper)({
   borderRadius: 20,
 })
 
+const StyledTextField = styled(TextField)({
+  '& fieldset': {
+    borderRadius: 20,
+  },
+})
+
 interface IFormInput {
   text: string
 }
 
 export default function Dashboard() {
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit } = useForm<IFormInput>({
     defaultValues: {
       text: '',
     },
@@ -19,6 +25,7 @@ export default function Dashboard() {
   const onSubmit: SubmitHandler<IFormInput> = data => {
     console.log(data)
   }
+
   return (
     <Stack
       height="100%"
@@ -48,13 +55,13 @@ export default function Dashboard() {
               name="text"
               control={control}
               render={({ field }) => (
-                <TextField
+                <StyledTextField
                   type="text"
                   label="Text"
-                  sx={{ width: '100%' }}
+                  sx={{ width: '100%', borderRadius: 20 }}
                   multiline
-                  minRows={26}
-                  maxRows={28}
+                  minRows={10}
+                  maxRows={12}
                   {...field}
                 />
               )}
