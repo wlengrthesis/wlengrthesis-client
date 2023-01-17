@@ -1,6 +1,5 @@
-import { Avatar, Box, Button, Container, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Box, Button, Container, TextField, Typography } from '@mui/material'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
 interface IFormInput {
@@ -8,8 +7,8 @@ interface IFormInput {
   password: string
 }
 
-const Login = () => {
-  const auth = useAuth()
+const SignUp = () => {
+  const { signUp } = useAuth()
   const { control, handleSubmit } = useForm<IFormInput>({
     defaultValues: {
       email: '',
@@ -18,7 +17,7 @@ const Login = () => {
   })
 
   const onSubmit: SubmitHandler<IFormInput> = ({ email, password }) => {
-    auth?.login({ email, password })
+    signUp({ email, password })
   }
 
   return (
@@ -33,7 +32,7 @@ const Login = () => {
       >
         <Avatar sx={{ m: 1 }} />
         <Typography component="h1" variant="h5">
-          Sign In
+          Sign Up
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
           <Controller
@@ -68,15 +67,12 @@ const Login = () => {
             )}
           />
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Sign In
+            Sign Up
           </Button>
-          <Stack>
-            <Link to="/register">{"Don't have an account? Sign Up"}</Link>
-          </Stack>
         </Box>
       </Box>
     </Container>
   )
 }
 
-export default Login
+export default SignUp

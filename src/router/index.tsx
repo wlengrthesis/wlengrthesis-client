@@ -2,8 +2,9 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import ProtectedLayout from '../auth/ProtectedLayout'
 import PublicLayout from '../auth/PublicLayout'
 import Dashboard from '../components/Dashboard'
-import Login from '../pages/Login'
+import SignIn from '../pages/SignIn'
 import Root from '../pages/Root'
+import SignUp from '../pages/SignUp'
 
 const router = createBrowserRouter([
   {
@@ -15,11 +16,15 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/login" replace />,
+            element: <Navigate to="signin" replace />,
           },
           {
-            path: 'login',
-            element: <Login />,
+            path: 'signin',
+            element: <SignIn />,
+          },
+          {
+            path: 'signup',
+            element: <SignUp />,
           },
         ],
       },

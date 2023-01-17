@@ -20,7 +20,8 @@ interface ICredentials {
 
 interface IAuthContextType {
   tokens: IStoredTokens
-  login: (credentials: ICredentials) => Promise<void>
+  signIn: (credentials: ICredentials) => Promise<void>
+  signUp: (credentials: ICredentials) => Promise<void>
   logout: () => Promise<void>
   refresh: () => Promise<boolean>
 }
@@ -34,7 +35,8 @@ const initialState: IAuthContextType = {
     accessToken: '',
     refreshToken: '',
   },
-  login: async _credentials => {},
+  signIn: async _credentials => {},
+  signUp: async _credentials => {},
   logout: async () => {},
   refresh: async () => false,
 } as const
@@ -42,22 +44,34 @@ const initialState: IAuthContextType = {
 const AuthContext = createContext<IAuthContextType>(initialState)
 
 const AuthProvider = ({ children }: IAuthProviderProps) => {
-  const [refreshToken, setRefreshToken, removeRefreshToken] = useLocalStorage<IStoredTokens['refreshToken']>('user')
+  const [refreshToken, setRefreshToken, removeRefreshToken] = useLocalStorage<IStoredTokens['refreshToken']>(
+    import.meta.env.VITE_TOKEN_KEY
+  )
   const [accessToken, setAccessToken] = useState('')
 
   const navigate = useNavigate()
 
-  const value = useMemo(
+  const value = useMemo<IAuthContextType>(
     () => ({
       tokens: { accessToken, refreshToken },
-      login: async (credentials: ICredentials) => {
+      signIn: async (credentials: ICredentials) => {
+        try {
+          const tokens = await makeRequest<ITokens>('auth/local/signin', 'POST', credentials)
+          setAccessToken(tokens.access_token)
+          setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
+          navigate('/dashboard', { replace: true })
+        } catch (error) {
+          console.warn('Sign In failed:', error)
+        }
+      },
+      signUp: async (credentials: ICredentials) => {
         try {
           const tokens = await makeRequest<ITokens>('auth/local/signup', 'POST', credentials)
           setAccessToken(tokens.access_token)
           setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
           navigate('/dashboard', { replace: true })
         } catch (error) {
-          console.warn('Login failed:', error)
+          console.warn('Sign Up failed:', error)
         }
       },
       logout: async () => {

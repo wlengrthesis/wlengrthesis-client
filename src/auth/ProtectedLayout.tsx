@@ -5,7 +5,7 @@ const ProtectedLayout = () => {
   const { tokens } = useAuth()
 
   if (!tokens.accessToken && !tokens.refreshToken) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/signin" replace />
   }
 
   return <Outlet />
