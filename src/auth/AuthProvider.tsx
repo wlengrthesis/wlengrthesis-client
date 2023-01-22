@@ -23,7 +23,7 @@ interface IAuthContextType {
   signIn: (credentials: ICredentials) => Promise<void>
   signUp: (credentials: ICredentials) => Promise<void>
   logout: () => Promise<void>
-  refresh: () => Promise<boolean>
+  refresh: () => Promise<ITokens['access_token']>
 }
 
 interface IAuthProviderProps {
@@ -38,7 +38,7 @@ const initialState: IAuthContextType = {
   signIn: async _credentials => {},
   signUp: async _credentials => {},
   logout: async () => {},
-  refresh: async () => false,
+  refresh: async () => '',
 } as const
 
 const AuthContext = createContext<IAuthContextType>(initialState)
@@ -103,12 +103,12 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
           )
           setAccessToken(tokens.access_token)
           setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
-          return true
+          return tokens.access_token
         } catch (error) {
           console.warn('Refresh failed:', error)
           setAccessToken('')
           removeRefreshToken()
-          return false
+          return ''
         }
       },
     }),

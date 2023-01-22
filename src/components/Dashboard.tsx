@@ -1,5 +1,7 @@
 import { styled, Paper, Stack, TextField, Box, Button } from '@mui/material'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import { makeRequest } from '../helpers/makeRequest'
+import { useAuth } from '../auth/AuthProvider'
 
 const StyledPaper = styled(Paper)({
   borderRadius: 20,
@@ -16,14 +18,28 @@ interface IFormInput {
 }
 
 export default function Dashboard() {
+  const { tokens, refresh } = useAuth()
   const { control, handleSubmit } = useForm<IFormInput>({
     defaultValues: {
       text: '',
     },
   })
 
-  const onSubmit: SubmitHandler<IFormInput> = data => {
-    console.log(data)
+  const onSubmit: SubmitHandler<IFormInput> = ({ text }) => {
+    makeRequest('sentiment-analysis/predict', 'POST', { text }, { Authorization: `Bearer ${tokens.accessToken}` })
+      .then(value => console.log(value))
+      .catch((errorStatus: number) => {
+        if (errorStatus === 401) {
+          refresh().then(newAccessToken =>
+            makeRequest(
+              'sentiment-analysis/predict',
+              'POST',
+              { text },
+              { Authorization: `Bearer ${newAccessToken}` }
+            ).then(value => console.log(value))
+          )
+        }
+      })
   }
 
   return (

@@ -15,7 +15,7 @@ const PublicLayout = () => {
       let isOk = false
       refresh()
         .then(value => {
-          isOk = value
+          isOk = !!value
         })
         .catch(() => {
           isOk = false

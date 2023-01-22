@@ -12,6 +12,6 @@ export const makeRequest = async <T>(
     body: JSON.stringify(bodyRequest),
   }
   const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, options)
-  if (!response.ok) throw new Error(`${response.status} (${response.statusText})`)
+  if (!response.ok) throw response.status
   return (await response.json()) as T
 }
