@@ -1,5 +1,7 @@
-import { Avatar, Badge, Box, Stack, styled, Typography, BadgeProps } from '@mui/material'
+import { Avatar, Badge, Box, Stack, styled, Typography, BadgeProps, Button } from '@mui/material'
 import { FC, ReactNode, useEffect, useState } from 'react'
+import { useAuth } from '../auth/AuthProvider'
+import { useStore } from '../store'
 
 const useNavigatorOnline = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
@@ -66,12 +68,14 @@ const StyledBadge: FC<IStyledBadgeProps> = ({ isOnline, children, ...props }) =>
 }
 
 export default function Sidebar() {
+  const { logout } = useAuth()
+  const { firstName, lastName, email } = useStore(state => state.user)
   const isOnline = useNavigatorOnline()
   return (
     <Stack height="100%" width="20%" justifyContent="space-between" alignItems="center">
-      <Box marginX={4} marginY={8}>
+      <Typography variant="h1" fontSize={20} marginX={4} marginY={8}>
         Sentiment Analysis Client
-      </Box>
+      </Typography>
       <Stack margin={4} spacing={2} alignItems="center">
         <StyledBadge
           isOnline={isOnline}
@@ -83,22 +87,22 @@ export default function Sidebar() {
         </StyledBadge>
         <Box textAlign="center">
           <Typography fontSize={18} fontWeight="bold" variant="subtitle1">
-            Joe Doe
+            {firstName} {lastName}
           </Typography>
           <Typography fontSize={14} fontWeight="normal" variant="subtitle2">
-            Admin
+            {email}
           </Typography>
         </Box>
       </Stack>
       <Box margin={4}>
         <Stack spacing={4}>
-          <Box>Dashboard</Box>
-          <Box>Settings</Box>
+          <Button>Dashboard</Button>
+          <Button>Settings</Button>
         </Stack>
       </Box>
-      <Box marginX={4} marginY={8}>
+      <Button sx={{ marginX: 4, marginY: 8 }} onClick={logout}>
         Logout
-      </Box>
+      </Button>
     </Stack>
   )
 }

@@ -2,6 +2,7 @@ import { Avatar, Box, Button, Container, TextField, Typography } from '@mui/mate
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
+import { useStore } from '../store'
 
 interface IFormInput {
   email: string
@@ -10,6 +11,7 @@ interface IFormInput {
 
 const SignIn = () => {
   const { signIn } = useAuth()
+  const setUser = useStore(state => state.setUser)
   const { control, handleSubmit } = useForm<IFormInput>({
     defaultValues: {
       email: '',
@@ -18,7 +20,9 @@ const SignIn = () => {
   })
 
   const onSubmit: SubmitHandler<IFormInput> = ({ email, password }) => {
-    signIn({ email, password })
+    signIn({ email, password, firstName: null, lastName: null }).then(({ id, firstName, lastName }) => {
+      setUser({ id, email, firstName, lastName })
+    })
   }
 
   return (

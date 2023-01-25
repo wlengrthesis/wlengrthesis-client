@@ -3,27 +3,40 @@ import { createContext, useContext, useMemo, ReactNode, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 import { makeRequest } from '../helpers/makeRequest'
 
-export interface ITokens {
+type UserId<T> = {
+  id: number
+} & T
+
+interface IUserName {
+  firstName: string | null
+  lastName: string | null
+}
+
+export type User = UserId<IUserName>
+
+export type Tokens = UserId<{
   access_token: string
   refresh_token: string
-}
+}>
+
+export type UserTokens = UserId<User & Tokens>
 
 export interface IStoredTokens {
   accessToken: string
   refreshToken: '' | { 0: string; 1: number }
 }
 
-interface ICredentials {
+interface ICredentials extends IUserName {
   email: string
   password: string
 }
 
 interface IAuthContextType {
   tokens: IStoredTokens
-  signIn: (credentials: ICredentials) => Promise<void>
-  signUp: (credentials: ICredentials) => Promise<void>
+  signIn: (credentials: ICredentials) => Promise<User>
+  signUp: (credentials: ICredentials) => Promise<number>
   logout: () => Promise<void>
-  refresh: () => Promise<ITokens['access_token']>
+  refresh: () => Promise<Tokens['access_token']>
 }
 
 interface IAuthProviderProps {
@@ -35,8 +48,12 @@ const initialState: IAuthContextType = {
     accessToken: '',
     refreshToken: '',
   },
-  signIn: async _credentials => {},
-  signUp: async _credentials => {},
+  signIn: async _credentials => ({
+    id: 0,
+    firstName: '',
+    lastName: '',
+  }),
+  signUp: async _credentials => 0,
   logout: async () => {},
   refresh: async () => '',
 } as const
@@ -56,23 +73,31 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
       tokens: { accessToken, refreshToken },
       signIn: async (credentials: ICredentials) => {
         try {
-          const tokens = await makeRequest<ITokens>('auth/local/signin', 'POST', credentials)
+          const { id, firstName, lastName, ...tokens } = await makeRequest<UserTokens>(
+            'auth/local/signin',
+            'POST',
+            credentials
+          )
           setAccessToken(tokens.access_token)
           setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
           navigate('/dashboard', { replace: true })
+          return { id, firstName, lastName }
         } catch (error) {
           console.warn('Sign In failed:', error)
         }
+        return { id: 0, firstName: '', lastName: '' }
       },
       signUp: async (credentials: ICredentials) => {
         try {
-          const tokens = await makeRequest<ITokens>('auth/local/signup', 'POST', credentials)
+          const tokens = await makeRequest<Tokens>('auth/local/signup', 'POST', credentials)
           setAccessToken(tokens.access_token)
           setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
           navigate('/dashboard', { replace: true })
+          return tokens.id
         } catch (error) {
           console.warn('Sign Up failed:', error)
         }
+        return 0
       },
       logout: async () => {
         try {
@@ -89,11 +114,11 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
         }
         setAccessToken('')
         removeRefreshToken()
-        navigate('/login', { replace: true })
+        navigate('/', { replace: true })
       },
       refresh: async () => {
         try {
-          const tokens = await makeRequest<ITokens>(
+          const tokens = await makeRequest<Tokens>(
             'auth/refresh',
             'POST',
             {},

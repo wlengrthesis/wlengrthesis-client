@@ -5,11 +5,13 @@ import Dashboard from '../components/Dashboard'
 import SignIn from '../pages/SignIn'
 import Root from '../pages/Root'
 import SignUp from '../pages/SignUp'
+import Error from '../pages/Error'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
+    errorElement: <Error />,
     children: [
       {
         element: <PublicLayout />,
