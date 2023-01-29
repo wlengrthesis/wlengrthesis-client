@@ -92,18 +92,15 @@ export default function Dashboard() {
                   />
                 )}
               />
+              <Typography m={4} fontWeight="bold">
+                Predicted sentiment: {sentiment ? <Typography component="i">{sentiment}</Typography> : null}
+              </Typography>
               <Button sx={{ marginY: 2 }} type="submit">
                 Send text to analyze sentiment
               </Button>
             </Box>
           </StyledPaper>
-          <StyledPaper sx={{ height: '100%', width: '48%' }} elevation={1}>
-            {sentiment ? (
-              <Typography m={4} fontWeight="bold">
-                Predicted sentiment: <Typography component="i">{sentiment}</Typography>
-              </Typography>
-            ) : null}
-          </StyledPaper>
+          <StyledPaper sx={{ height: '100%', width: '48%' }} elevation={1} />
         </Stack>
         <StyledPaper sx={{ height: '30%', width: '90%' }} elevation={1} />
       </Stack>
