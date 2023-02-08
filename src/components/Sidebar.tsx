@@ -72,7 +72,15 @@ export default function Sidebar() {
   const { firstName, lastName, email } = useStore(state => state.user)
   const isOnline = useNavigatorOnline()
   return (
-    <Stack height="100%" width="20%" justifyContent="space-between" alignItems="center">
+    <Stack
+      height="96%"
+      width="20%"
+      justifyContent="space-between"
+      alignItems="center"
+      borderRadius={8}
+      bgcolor="white"
+      m={2}
+    >
       <Typography variant="h1" fontSize={20} marginX={4} marginY={8}>
         Sentiment Analysis Client
       </Typography>

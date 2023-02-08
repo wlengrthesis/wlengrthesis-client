@@ -72,32 +72,22 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     () => ({
       tokens: { accessToken, refreshToken },
       signIn: async (credentials: ICredentials) => {
-        try {
-          const { id, firstName, lastName, ...tokens } = await makeRequest<UserTokens>(
-            'auth/local/signin',
-            'POST',
-            credentials
-          )
-          setAccessToken(tokens.access_token)
-          setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
-          navigate('/dashboard', { replace: true })
-          return { id, firstName, lastName }
-        } catch (error) {
-          console.warn('Sign In failed:', error)
-        }
-        return { id: 0, firstName: '', lastName: '' }
+        const { id, firstName, lastName, ...tokens } = await makeRequest<UserTokens>(
+          'auth/local/signin',
+          'POST',
+          credentials
+        )
+        setAccessToken(tokens.access_token)
+        setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
+        navigate('/dashboard', { replace: true })
+        return { id, firstName, lastName }
       },
       signUp: async (credentials: ICredentials) => {
-        try {
-          const tokens = await makeRequest<Tokens>('auth/local/signup', 'POST', credentials)
-          setAccessToken(tokens.access_token)
-          setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
-          navigate('/dashboard', { replace: true })
-          return tokens.id
-        } catch (error) {
-          console.warn('Sign Up failed:', error)
-        }
-        return 0
+        const tokens = await makeRequest<Tokens>('auth/local/signup', 'POST', credentials)
+        setAccessToken(tokens.access_token)
+        setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
+        navigate('/dashboard', { replace: true })
+        return tokens.id
       },
       logout: async () => {
         try {
