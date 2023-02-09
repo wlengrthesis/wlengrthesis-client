@@ -5,13 +5,16 @@ import { useAuth } from '../auth/AuthProvider'
 import Sidebar from './Sidebar'
 import DataTable from './DataTable'
 import { useStore } from '../store'
-import { useEffect, useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import TypeIt from 'typeit-react'
+import { Visualization } from './Visualization'
 
 interface IFormInput {
   text: string
 }
 
 export default function Dashboard() {
+  const [prediction, setPrediction] = useState('')
   const { fetchTexts, texts } = useStore(state => state)
   const { tokens, refresh } = useAuth()
   const { control, handleSubmit } = useForm<IFormInput>({
@@ -22,30 +25,29 @@ export default function Dashboard() {
 
   useMemo(() => {
     fetchTexts(tokens.accessToken)
-  }, [fetchTexts, tokens.accessToken])
+  }, [tokens.accessToken])
 
   const onSubmit: SubmitHandler<IFormInput> = ({ text }) => {
-    makeRequest<{ sentiment: string; probability: string }>(
-      'sentiment-analysis/predict',
-      'POST',
-      { text },
-      { Authorization: `Bearer ${tokens.accessToken}` }
-    )
+    setPrediction('')
+    makeRequest<{ sentiment: string; probability: string }>('sentiment-analysis/predict', {
+      method: 'POST',
+      body: { text },
+      headers: { Authorization: `Bearer ${tokens.accessToken}` },
+    })
       .then(value => {
-        console.log(`${value.sentiment} with ${value.probability} probability`)
-        fetchTexts(tokens.accessToken)
+        setPrediction(`${value.sentiment} - ${value.probability}`)
+        setTimeout(() => fetchTexts(tokens.accessToken), 1000)
       })
       .catch((errorStatus: number) => {
         if (errorStatus === 401) {
           refresh().then(newAccessToken =>
-            makeRequest<{ sentiment: string; probability: string }>(
-              'sentiment-analysis/predict',
-              'POST',
-              { text },
-              { Authorization: `Bearer ${newAccessToken}` }
-            ).then(value => {
-              console.log(`${value.sentiment} with ${value.probability} probability`)
-              fetchTexts(tokens.accessToken)
+            makeRequest<{ sentiment: string; probability: string }>('sentiment-analysis/predict', {
+              method: 'POST',
+              body: { text },
+              headers: { Authorization: `Bearer ${newAccessToken}` },
+            }).then(value => {
+              setPrediction(`${value.sentiment} - ${value.probability}`)
+              setTimeout(() => fetchTexts(tokens.accessToken), 1000)
             })
           )
         }
@@ -89,22 +91,34 @@ export default function Dashboard() {
                   />
                 )}
               />
-              <Button type="submit" sx={{ m: 1 }}>
-                SEND
-              </Button>
+              <Stack direction="row" mt={1} width="100%" justifyContent="space-between" alignItems="center">
+                <Typography variant="h1" fontSize={16} fontWeight="400" color="primary">
+                  {prediction ? (
+                    <TypeIt>
+                      <b>PREDICTED</b> : <em>{prediction}</em>
+                    </TypeIt>
+                  ) : (
+                    ' '
+                  )}
+                </Typography>
+                <Button sx={{ px: 4 }} type="submit" variant="contained">
+                  SEND
+                </Button>
+              </Stack>
             </Box>
           </Box>
           <Box sx={{ height: '100%', width: '48%', borderRadius: 8, backgroundColor: 'white' }}>
             <Typography variant="h1" fontSize={18} marginX={4} marginTop={4} marginBottom={2}>
               Visualization
             </Typography>
+            <Visualization />
           </Box>
         </Stack>
         <Box sx={{ height: '30%', width: '90%', borderRadius: 8, backgroundColor: 'white' }}>
           <Typography variant="h1" fontSize={18} marginX={4} marginTop={4} marginBottom={2}>
             Messages
           </Typography>
-          <DataTable rows={texts} />
+          <DataTable rows={texts.sort((a, b) => b.textId - a.textId)} />
         </Box>
       </Stack>
     </>

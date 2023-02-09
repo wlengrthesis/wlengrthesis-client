@@ -3,7 +3,7 @@ type HttpMethod = 'GET' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 export const makeRequest = async <T>(
   endpoint: string,
   options: {
-    method: HttpMethod
+    method?: HttpMethod
     headers?: Record<string, string>
     body?: Record<string, any>
   } = { method: 'GET' }

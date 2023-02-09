@@ -14,10 +14,13 @@
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.4",
+    "chart.js": "^4.2.0",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.42.0",
     "react-router-dom": "^6.6.2",
+    "typeit-react": "^2.6.4",
     "zustand": "^4.3.2"
   },
   "devDependencies": {

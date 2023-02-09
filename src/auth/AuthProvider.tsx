@@ -72,18 +72,20 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     () => ({
       tokens: { accessToken, refreshToken },
       signIn: async (credentials: ICredentials) => {
-        const { id, firstName, lastName, ...tokens } = await makeRequest<UserTokens>(
-          'auth/local/signin',
-          'POST',
-          credentials
-        )
+        const { id, firstName, lastName, ...tokens } = await makeRequest<UserTokens>('auth/local/signin', {
+          method: 'POST',
+          body: credentials,
+        })
         setAccessToken(tokens.access_token)
         setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
         navigate('/dashboard', { replace: true })
         return { id, firstName, lastName }
       },
       signUp: async (credentials: ICredentials) => {
-        const tokens = await makeRequest<Tokens>('auth/local/signup', 'POST', credentials)
+        const tokens = await makeRequest<Tokens>('auth/local/signup', {
+          method: 'POST',
+          body: credentials,
+        })
         setAccessToken(tokens.access_token)
         setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
         navigate('/dashboard', { replace: true })
@@ -91,14 +93,13 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
       },
       logout: async () => {
         try {
-          await makeRequest(
-            'auth/logout',
-            'POST',
-            {},
-            {
+          await makeRequest('auth/logout', {
+            method: 'POST',
+            body: {},
+            headers: {
               Authorization: `Bearer ${accessToken}`,
-            }
-          )
+            },
+          })
         } catch (error) {
           console.warn('Logout failed:', error)
         }
@@ -108,14 +109,13 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
       },
       refresh: async () => {
         try {
-          const tokens = await makeRequest<Tokens>(
-            'auth/refresh',
-            'POST',
-            {},
-            {
+          const tokens = await makeRequest<Tokens>('auth/refresh', {
+            method: 'POST',
+            body: {},
+            headers: {
               Authorization: `Bearer ${refreshToken[0]}`,
-            }
-          )
+            },
+          })
           setAccessToken(tokens.access_token)
           setRefreshToken({ 0: tokens.refresh_token, 1: Date.now() })
           return tokens.access_token

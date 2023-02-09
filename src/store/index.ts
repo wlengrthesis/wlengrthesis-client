@@ -32,8 +32,8 @@ export const useStore = create<IState>((set, get) => ({
   setUser: user => set(() => ({ user })),
   texts: [],
   fetchTexts: async (authToken: string) => {
-    const texts = await makeRequest<IText[]>(`text/${get().user.id}/all`, 'GET', undefined, {
-      Authorization: `Bearer ${authToken}`,
+    const texts = await makeRequest<IText[]>(`text/${get().user.id}/all`, {
+      headers: { Authorization: `Bearer ${authToken}` },
     })
     set({ texts })
   },

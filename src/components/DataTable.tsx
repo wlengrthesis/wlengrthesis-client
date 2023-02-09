@@ -7,7 +7,7 @@ type DataTableProps = {
 
 export default function DataTable({ rows }: DataTableProps) {
   return (
-    <TableContainer sx={{ width: '98%', marginX: 'auto' }} component={Paper}>
+    <TableContainer sx={{ width: '96%', marginX: 'auto', maxHeight: 150 }}>
       <Table aria-label="Predicted sentiments">
         <TableHead>
           <TableRow>
