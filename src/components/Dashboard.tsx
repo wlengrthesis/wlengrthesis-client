@@ -1,4 +1,4 @@
-import { Stack, TextField, Box, Button, Typography } from '@mui/material'
+import { Stack, TextField, Box, Button, Typography, CircularProgress } from '@mui/material'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { makeRequest } from '../helpers/makeRequest'
 import { useAuth } from '../auth/AuthProvider'
@@ -15,6 +15,7 @@ interface IFormInput {
 
 export default function Dashboard() {
   const [prediction, setPrediction] = useState('')
+  const [sendClicked, setSendClicked] = useState(false)
   const { fetchTexts, texts } = useStore(state => state)
   const { tokens, refresh } = useAuth()
   const { control, handleSubmit } = useForm<IFormInput>({
@@ -29,6 +30,7 @@ export default function Dashboard() {
 
   const onSubmit: SubmitHandler<IFormInput> = ({ text }) => {
     setPrediction('')
+    setSendClicked(true)
     makeRequest<{ sentiment: string; probability: string }>('sentiment-analysis/predict', {
       method: 'POST',
       body: { text },
@@ -36,6 +38,7 @@ export default function Dashboard() {
     })
       .then(value => {
         setPrediction(`${value.sentiment} - ${value.probability}`)
+        setSendClicked(false)
         setTimeout(() => fetchTexts(tokens.accessToken), 1000)
       })
       .catch((errorStatus: number) => {
@@ -47,6 +50,7 @@ export default function Dashboard() {
               headers: { Authorization: `Bearer ${newAccessToken}` },
             }).then(value => {
               setPrediction(`${value.sentiment} - ${value.probability}`)
+              setSendClicked(false)
               setTimeout(() => fetchTexts(tokens.accessToken), 1000)
             })
           )
@@ -98,7 +102,7 @@ export default function Dashboard() {
                       <b>PREDICTED</b> : <em>{prediction}</em>
                     </TypeIt>
                   ) : (
-                    ' '
+                    sendClicked && <CircularProgress size={20} />
                   )}
                 </Typography>
                 <Button sx={{ px: 4 }} type="submit" variant="contained">
